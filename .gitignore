@@ -1,0 +1,38 @@
+# Gradle
+.gradle/
+build/
+**/build/
+.kotlin/
+
+# Keep the Gradle wrapper jar tracked
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# Loom / NeoForge dev run directories
+run/
+runs/
+**/run/
+**/runs/
+
+# Minecraft / mappings caches
+*.mcmeta.lock
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
