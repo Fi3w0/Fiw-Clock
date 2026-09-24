@@ -36,3 +36,8 @@ runs/
 .DS_Store
 Thumbs.db
 *.log
+
+# Local agent context (never published)
+AGENTS.md
+AGENT.md
+CLAUDE.md
