@@ -79,7 +79,7 @@ class StatsManagerTest {
 	fun `all stats survive a restart`() {
 		StatsManager.start(dir)
 		StatsManager.onPlayerJoin(alex, "Alex")
-		repeat(40) { StatsManager.tickPlayer(alex, "Alex") }
+		repeat(40) { StatsManager.tickPlayer(alex, "Alex", 0f, 0f) }
 		StatsManager.recordKill(alex, "Alex", steve, victimIsPlayer = true)
 		StatsManager.recordDeath(alex, "Alex")
 		StatsManager.stop()
@@ -130,7 +130,7 @@ class StatsManagerTest {
 		try {
 			StatsManager.start(dir)
 			StatsManager.onPlayerJoin(alex, "Alex")
-			StatsManager.tickPlayer(alex, "Alex")
+			StatsManager.tickPlayer(alex, "Alex", 0f, 0f)
 			StatsManager.recordKill(alex, "Alex", steve, victimIsPlayer = true)
 			StatsManager.recordKill(alex, "Alex", zombie, victimIsPlayer = false)
 			StatsManager.recordDeath(alex, "Alex")
@@ -156,5 +156,126 @@ class StatsManagerTest {
 		assertNull(TickwatchApi.checkLuckPermsPermission(alex, "tickwatch.command.stats"))
 		StatsManager.stop()
 		assertFalse(TickwatchApi.isRunning())
+	}
+	@Test
+	fun `idle players become AFK and stop earning playtime`() {
+		writeConfig("""{"afk":{"enabled":true,"minutes":1}}""")
+		val seen = mutableListOf<StatsListener.Reason>()
+		val listener = StatsListener { _, reason -> seen += reason }
+		TickwatchApi.addListener(listener)
+		try {
+			StatsManager.start(dir)
+			StatsManager.onPlayerJoin(alex, "Alex")
+			// First tick records the rotation, then 1200 ticks (1 minute) without turning.
+			repeat(1201) { StatsManager.tickPlayer(alex, "Alex", 90f, 10f) }
+			assertTrue(TickwatchApi.get(alex)!!.isAfk)
+			repeat(99) { StatsManager.tickPlayer(alex, "Alex", 90f, 10f) }
+			StatsManager.tickPlayer(alex, "Alex", 91f, 10f)
+		} finally {
+			TickwatchApi.removeListener(listener)
+		}
+
+		val s = TickwatchApi.get(alex)!!
+		assertFalse(s.isAfk)
+		assertEquals(1201, s.playTimeTicks)
+		assertEquals(100, s.afkTicks)
+		assertEquals(1301, s.sessionTicks)
+		assertEquals(1301, s.longestSessionTicks)
+		assertEquals(listOf(StatsListener.Reason.JOIN, StatsListener.Reason.AFK_START, StatsListener.Reason.AFK_END), seen)
+	}
+
+	@Test
+	fun `AFK detection can be turned off`() {
+		writeConfig("""{"afk":{"enabled":false}}""")
+		StatsManager.start(dir)
+		StatsManager.onPlayerJoin(alex, "Alex")
+		repeat(7000) { StatsManager.tickPlayer(alex, "Alex", 0f, 0f) }
+		val s = TickwatchApi.get(alex)!!
+		assertFalse(s.isAfk)
+		assertEquals(7000, s.playTimeTicks)
+		assertEquals(0, s.afkTicks)
+	}
+
+	@Test
+	fun `sessions reset on quit but the longest one is kept`() {
+		StatsManager.start(dir)
+		StatsManager.onPlayerJoin(alex, "Alex")
+		repeat(50) { StatsManager.tickPlayer(alex, "Alex", it.toFloat(), 0f) }
+		StatsManager.onPlayerQuit(alex, "Alex")
+		StatsManager.onPlayerJoin(alex, "Alex")
+		repeat(20) { StatsManager.tickPlayer(alex, "Alex", it.toFloat(), 0f) }
+
+		var s = TickwatchApi.get(alex)!!
+		assertTrue(s.isOnline)
+		assertEquals(20, s.sessionTicks)
+		assertEquals(50, s.longestSessionTicks)
+
+		StatsManager.onPlayerQuit(alex, "Alex")
+		s = TickwatchApi.get(alex)!!
+		assertFalse(s.isOnline)
+		assertEquals(0, s.sessionTicks)
+
+		StatsManager.stop()
+		StatsManager.start(dir)
+		assertEquals(50, TickwatchApi.get(alex)!!.longestSessionTicks)
+	}
+
+	@Test
+	fun `milestones are broadcast once when reached`() {
+		writeConfig(
+			"""{"milestones":{"enabled":true,"rules":[
+				{"stat":"kills","at":[2,3],"message":"&6{player} &ehit {value} kills"},
+				{"stat":"joins","at":[1],"message":"welcome {player}"},
+				{"stat":"playtime","at":[1],"message":"not supported"}
+			]}}""",
+		)
+		val messages = mutableListOf<String>()
+		StatsManager.start(dir) { messages += it }
+		StatsManager.onPlayerJoin(alex, "Alex")
+		repeat(4) { StatsManager.recordKill(alex, "Alex", zombie, victimIsPlayer = false) }
+		assertEquals(listOf("welcome Alex", "&6Alex &ehit 2 kills", "&6Alex &ehit 3 kills"), messages)
+	}
+
+	@Test
+	fun `milestones are off by default`() {
+		val messages = mutableListOf<String>()
+		StatsManager.start(dir) { messages += it }
+		repeat(10) { StatsManager.recordKill(alex, "Alex", zombie, victimIsPlayer = false) }
+		assertTrue(messages.isEmpty())
+	}
+
+	@Test
+	fun `reload applies a new config and keeps the old one if broken`() {
+		StatsManager.start(dir)
+		StatsManager.onPlayerJoin(alex, "Alex")
+		assertTrue(StatsManager.config.afkEnabled)
+
+		writeConfig("""{"afk":{"enabled":false},"commands":{"permissionLevel":2}}""")
+		assertTrue(StatsManager.reload())
+		assertFalse(StatsManager.config.afkEnabled)
+		assertEquals(2, TickwatchCommands.defaultLevel(TickwatchCommands.PERMISSION_TOP))
+
+		writeConfig("{ broken")
+		assertFalse(StatsManager.reload())
+		assertFalse(StatsManager.config.afkEnabled)
+	}
+
+	@Test
+	fun `stats files keep afk time and longest session`() {
+		Files.writeString(
+			dir.resolve("stats.json"),
+			"""{"players":{"$alex":{"name":"Alex","playTimeTicks":20,"afkTicks":40,"longestSessionTicks":60}}}""",
+		)
+		StatsManager.start(dir)
+		val s = TickwatchApi.get(alex)!!
+		assertEquals(40, s.afkTicks)
+		assertEquals(60, s.longestSessionTicks)
+		assertEquals("0h 00m 02s", s.format(Stat.AFK_TIME))
+		assertEquals("Alex", s.format(Stat.NAME))
+		assertEquals("false", s.format(Stat.AFK))
+	}
+
+	private fun writeConfig(json: String) {
+		Files.writeString(dir.resolve("config.json"), json)
 	}
 }

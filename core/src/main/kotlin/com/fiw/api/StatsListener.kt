@@ -9,5 +9,15 @@ package com.fiw.api
 fun interface StatsListener {
 	fun onStatsChanged(snapshot: StatsSnapshot, reason: Reason)
 
-	enum class Reason { JOIN, QUIT, PLAYER_KILL, MOB_KILL, DEATH }
+	enum class Reason {
+		JOIN,
+		QUIT,
+		PLAYER_KILL,
+		MOB_KILL,
+		DEATH,
+		/** The player stopped turning their camera for `afk.minutes` and is now AFK. */
+		AFK_START,
+		/** An AFK player looked around again. */
+		AFK_END,
+	}
 }

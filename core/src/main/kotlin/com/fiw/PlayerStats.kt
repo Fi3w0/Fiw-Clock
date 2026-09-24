@@ -9,7 +9,10 @@ package com.fiw
  */
 class PlayerStats(
 	var name: String,
+	/** Active (non-AFK) time played, in ticks. */
 	var playTimeTicks: Long = 0L,
+	/** Time spent online but AFK, in ticks. */
+	var afkTicks: Long = 0L,
 	var kills: Long = 0L,
 	var playerKills: Long = 0L,
 	var mobKills: Long = 0L,
@@ -21,13 +24,20 @@ class PlayerStats(
 	var firstJoin: Long = 0L,
 	/** Epoch millis of the last join/quit, or 0 if unknown. */
 	var lastSeen: Long = 0L,
+	var longestSessionTicks: Long = 0L,
+	// Live state below: never saved, reset on every join/quit.
+	/** Ticks online since the current login (AFK included); 0 while offline. */
+	var sessionTicks: Long = 0L,
+	var online: Boolean = false,
+	var afk: Boolean = false,
 ) {
 	/** Kills per death; equals [kills] when the player has never died. */
 	val kdr: Double
 		get() = if (deaths == 0L) kills.toDouble() else kills.toDouble() / deaths
 
 	fun copy(): PlayerStats = PlayerStats(
-		name, playTimeTicks, kills, playerKills, mobKills, deaths,
-		killStreak, bestKillStreak, joins, firstJoin, lastSeen,
+		name, playTimeTicks, afkTicks, kills, playerKills, mobKills, deaths,
+		killStreak, bestKillStreak, joins, firstJoin, lastSeen, longestSessionTicks,
+		sessionTicks, online, afk,
 	)
 }

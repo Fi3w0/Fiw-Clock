@@ -72,6 +72,7 @@ class StatsStorage(private val file: Path) {
 					result[UUID.fromString(key)] = PlayerStats(
 						name = obj.get("name")?.asString ?: "unknown",
 						playTimeTicks = long("playTimeTicks"),
+						afkTicks = long("afkTicks"),
 						kills = long("kills"),
 						playerKills = long("playerKills"),
 						mobKills = long("mobKills"),
@@ -81,6 +82,7 @@ class StatsStorage(private val file: Path) {
 						joins = long("joins"),
 						firstJoin = long("firstJoin"),
 						lastSeen = long("lastSeen"),
+						longestSessionTicks = long("longestSessionTicks"),
 					)
 				} catch (e: Exception) {
 					// Skip a single malformed entry rather than losing the whole file.
@@ -150,6 +152,7 @@ class StatsStorage(private val file: Path) {
 			obj.addProperty("name", s.name)
 			obj.addProperty("playTimeTicks", s.playTimeTicks)
 			obj.addProperty("playTimeFormatted", Stat.formatTicks(s.playTimeTicks))
+			obj.addProperty("afkTicks", s.afkTicks)
 			obj.addProperty("kills", s.kills)
 			obj.addProperty("playerKills", s.playerKills)
 			obj.addProperty("mobKills", s.mobKills)
@@ -159,6 +162,7 @@ class StatsStorage(private val file: Path) {
 			obj.addProperty("joins", s.joins)
 			obj.addProperty("firstJoin", s.firstJoin)
 			obj.addProperty("lastSeen", s.lastSeen)
+			obj.addProperty("longestSessionTicks", s.longestSessionTicks)
 			players.add(id.toString(), obj)
 		}
 		root.add("players", players)

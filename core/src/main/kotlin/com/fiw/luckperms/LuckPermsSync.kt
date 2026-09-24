@@ -15,7 +15,8 @@ import java.util.UUID
  *
  * Meta goes into **transient** data: it lives only while the user is loaded, is never
  * written to the LuckPerms database, and is rebuilt from Tickwatch on every login.
- * Only keys whose value actually changed are touched, to avoid needless cache rebuilds.
+ * Only keys whose value actually changed are touched, to avoid needless cache rebuilds;
+ * keys under the prefix that are no longer configured are removed.
  */
 internal class LuckPermsSync private constructor(
 	private val luckPerms: LuckPerms,
@@ -33,13 +34,25 @@ internal class LuckPermsSync private constructor(
 			}
 		}
 
+		val wanted = LinkedHashMap<String, String>()
 		for (stat in config.metaStats) {
-			val key = config.metaPrefix + stat.id
-			val value = stat.format(stats)
+			wanted[config.metaPrefix + stat.id] = stat.format(stats)
+		}
+
+		// Keys this prefix owns but that are no longer configured.
+		for (key in current.keys) {
+			if (key !in wanted) data.clear(NodeType.META.predicate { it.metaKey == key })
+		}
+		for ((key, value) in wanted) {
 			if (current[key] == value) continue
 			data.clear(NodeType.META.predicate { it.metaKey == key })
 			data.add(MetaNode.builder(key, value).build())
 		}
+	}
+
+	override fun clear(uuid: UUID) {
+		val user = luckPerms.userManager.getUser(uuid) ?: return
+		user.transientData().clear(NodeType.META.predicate { it.metaKey.startsWith(config.metaPrefix) })
 	}
 
 	override fun checkPermission(uuid: UUID, node: String): Boolean? {

@@ -14,6 +14,9 @@ interface LuckPermsBridge {
 	/** Mirror [stats] into the player's transient LuckPerms meta. No-op if the user isn't loaded. */
 	fun push(uuid: UUID, stats: PlayerStats)
 
+	/** Remove every Tickwatch meta key from the player (e.g. before a config reload). */
+	fun clear(uuid: UUID)
+
 	/** LuckPerms' verdict on [node] for an online player, or null when it has no opinion. */
 	fun checkPermission(uuid: UUID, node: String): Boolean?
 
