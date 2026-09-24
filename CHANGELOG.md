@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   mod id is now `fiw_clock` (the Fabric id and the `<world>/fiw-clock/` data folder are unchanged).
 
 ### Notes
+- Published as a **beta**: please report anything odd on the issue tracker.
 - Existing `stats.json` files load unchanged. Kills recorded before this version count toward
   the total only, since they were never split into player/mob kills.
 

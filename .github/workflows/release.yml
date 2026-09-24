@@ -105,11 +105,13 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" release/*.jar --clobber
           else
+            source .github/scripts/targets.sh
+            if [ "$RELEASE_TYPE" = "release" ]; then channel=(--latest); else channel=(--prerelease); fi
             gh release create "$TAG" release/*.jar \
               --title "Tickwatch $VERSION" \
               --notes-file RELEASE_NOTES.md \
               --verify-tag \
-              --latest
+              "${channel[@]}"
           fi
 
       - name: Publish Modrinth versions and sync description

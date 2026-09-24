@@ -4,6 +4,10 @@
 # run while this is empty. Note: the slug "tickwatch" belongs to an unrelated project.
 MODRINTH_PROJECT="knjOyXW2"
 
+# Release channel: "release", "beta" or "alpha". Anything but "release" is published as a
+# Modrinth beta/alpha and a GitHub pre-release.
+RELEASE_TYPE="beta"
+
 # Every jar Tickwatch releases, newest Minecraft first: "<module> <modrinth loader> <minecraft version>".
 TARGETS=(
   "fabric-1.21.11 fabric 1.21.11"

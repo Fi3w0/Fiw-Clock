@@ -9,8 +9,12 @@ CHANGELOG_FILE="${CHANGELOG_FILE:-RELEASE_NOTES.md}"
 DESCRIPTION_FILE="${DESCRIPTION_FILE:-MODRINTH.md}"
 MODRINTH_TOKEN="${MODRINTH_TOKEN:?MODRINTH_TOKEN is required}"
 
-# Provides MODRINTH_PROJECT (the Tickwatch project) and TARGETS.
+# Provides MODRINTH_PROJECT (the Tickwatch project), RELEASE_TYPE and TARGETS.
 source "$(dirname "$0")/targets.sh"
+case "$RELEASE_TYPE" in
+  release|beta|alpha) ;;
+  *) echo "::error::RELEASE_TYPE must be release, beta or alpha (got '$RELEASE_TYPE')" >&2; exit 1 ;;
+esac
 if [ -z "$MODRINTH_PROJECT" ]; then
   echo "::error::MODRINTH_PROJECT is not set in .github/scripts/targets.sh" >&2
   exit 1
@@ -114,6 +118,7 @@ for target in "${TARGETS[@]}"; do
     --arg project_id "$PROJECT_ID" \
     --arg game_version "$game_version" \
     --arg loader "$loader" \
+    --arg version_type "$RELEASE_TYPE" \
     --argjson dependencies "$(dependencies_for "$loader")" \
     '{
       name: $name,
@@ -121,7 +126,7 @@ for target in "${TARGETS[@]}"; do
       changelog: $changelog,
       dependencies: $dependencies,
       game_versions: [$game_version],
-      version_type: "release",
+      version_type: $version_type,
       loaders: [$loader],
       featured: true,
       status: "listed",
@@ -131,7 +136,7 @@ for target in "${TARGETS[@]}"; do
       primary_file: "file"
     }' > "$data_file"
 
-  echo "Publishing $VERSION ($label)"
+  echo "Publishing $VERSION ($label, $RELEASE_TYPE)"
   request "$tmp_dir/$module-response.json" -X POST "$API_BASE/version" \
     -H "$auth_header" \
     -F "data=@$data_file;type=application/json" \

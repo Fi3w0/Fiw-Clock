@@ -276,6 +276,9 @@ live in each module's `gradle.properties`; the mod version lives only in the roo
 
 Pushing a new `mod_version` to `main` makes CI build every target, tag `v<version>`, create a
 GitHub release with the `CHANGELOG.md` section as notes, and publish all six jars to Modrinth.
+The release channel (`release`, `beta` or `alpha`) is `RELEASE_TYPE` in
+`.github/scripts/targets.sh`; anything but `release` becomes a Modrinth beta/alpha and a GitHub
+pre-release.
 
 ## License
 
