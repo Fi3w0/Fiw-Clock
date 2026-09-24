@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "${mod_id}",
+	"version": "${version}",
+	"name": "Tickwatch",
+	"description": "Lightweight, server-side tracker for player playtime, player/mob kills, deaths, kill streaks, sessions and AFK time, with LuckPerms meta sync, a /tickwatch command and a public API. Saves to a crash-safe JSON file per world.",
+	"authors": [
+		"fiw"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/tickwatch",
+		"sources": "https://github.com/Fi3w0/Fiw-Clock",
+		"issues": "https://github.com/Fi3w0/Fiw-Clock/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/fiw-clock/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "com.fiw.fabric.TickwatchFabric",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"depends": {
+		"fabricloader": ">=${fabric_loader_min}",
+		"minecraft": "${minecraft_dependency}",
+		"java": ">=${java_version}",
+		"fabric-api": "*",
+		"fabric-language-kotlin": ">=1.13.4"
+	},
+	"suggests": {
+		"luckperms": "*"
+	}
+}
