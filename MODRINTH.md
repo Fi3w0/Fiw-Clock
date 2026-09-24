@@ -1,6 +1,6 @@
 # Tickwatch
 
-**Track playtime, kills, and deaths — server-side, lightweight, crash-safe.**
+**Track playtime, player & mob kills, deaths and kill streaks — server-side, lightweight, crash-safe, LuckPerms-ready.**
 
 Tickwatch quietly records how long each player has played and how many kills and deaths they
 rack up, then stores it all in a clean JSON file. No client mod required, no commands to learn,
@@ -16,6 +16,9 @@ no impact on your TPS.
 - 💾 **Crash-safe by design** — atomic writes with a rotating backup. A sudden power loss or hard
   crash **cannot corrupt your stats**.
 - ⚡ **Never blocks the server** — all disk writes run on a dedicated background thread.
+- 🔑 **LuckPerms integration** — stats become LuckPerms meta (`tickwatch_kills`, `tickwatch_playtime`, …)
+  so any chat, tab or scoreboard mod that reads LuckPerms meta can display them.
+- 🧩 **Public API** — other mods can read stats, leaderboards and listen for kills/deaths.
 
 ## 📊 What it tracks
 
@@ -24,8 +27,10 @@ For every player, per world:
 | Stat | Detail |
 |------|--------|
 | ⏱️ **Playtime** | Counted in ticks, with a human-readable `2h 14m 30s` field |
-| ⚔️ **Kills** | Mobs and players killed by that player |
-| 💀 **Deaths** | Times that player died |
+| ⚔️ **Kills** | Total, plus **player kills** and **mob kills** separately |
+| 💀 **Deaths** | Times that player died, plus **K/D ratio** |
+| 🔥 **Kill streaks** | Current streak (reset on death) and best-ever streak |
+| 📅 **Joins** | Login count, first-join date, last-seen date |
 
 Stored at `<world>/fiw-clock/stats.json`:
 
@@ -37,7 +42,14 @@ Stored at `<world>/fiw-clock/stats.json`:
       "playTimeTicks": 144000,
       "playTimeFormatted": "2h 00m 00s",
       "kills": 12,
-      "deaths": 3
+      "playerKills": 2,
+      "mobKills": 10,
+      "deaths": 3,
+      "killStreak": 4,
+      "bestKillStreak": 9,
+      "joins": 27,
+      "firstJoin": 1767225600000,
+      "lastSeen": 1769904000000
     }
   }
 }
@@ -51,6 +63,8 @@ Perfect for leaderboards, web dashboards, Discord bots, or anything that can rea
 
 - **Fabric:** Fabric API + Fabric Language Kotlin
 - **NeoForge:** Kotlin for Forge
+
+Optional: **LuckPerms** — enables meta sync (`/lp user <name> meta info` shows the stats).
 
 No Architectury or other wrapper mod required.
 
