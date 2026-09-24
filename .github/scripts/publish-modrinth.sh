@@ -4,14 +4,17 @@
 set -euo pipefail
 
 API_BASE="${API_BASE:-https://api.modrinth.com/v2}"
-# Project slug or id; ids of the project and its dependencies are looked up from their slugs.
-MODRINTH_PROJECT="${MODRINTH_PROJECT:-tickwatch}"
 VERSION="${VERSION:?VERSION is required}"
 CHANGELOG_FILE="${CHANGELOG_FILE:-RELEASE_NOTES.md}"
 DESCRIPTION_FILE="${DESCRIPTION_FILE:-MODRINTH.md}"
 MODRINTH_TOKEN="${MODRINTH_TOKEN:?MODRINTH_TOKEN is required}"
 
+# Provides MODRINTH_PROJECT (the Tickwatch project) and TARGETS.
 source "$(dirname "$0")/targets.sh"
+if [ -z "$MODRINTH_PROJECT" ]; then
+  echo "::error::MODRINTH_PROJECT is not set in .github/scripts/targets.sh" >&2
+  exit 1
+fi
 
 if ! command -v jq >/dev/null 2>&1; then
   echo "jq is required" >&2
@@ -37,7 +40,7 @@ request() {
   fi
 }
 
-# Modrinth wants base62 ids (not slugs) in version payloads.
+# Modrinth wants base62 ids (not slugs) in version payloads; dependencies are looked up by slug.
 project_id() {
   local response_file="$tmp_dir/project-$1.json"
   request "$response_file" -H "$auth_header" "$API_BASE/project/$1"

@@ -1,5 +1,10 @@
+# Release configuration, sourced by collect-jars.sh, publish-modrinth.sh and the workflows.
+
+# Modrinth project id of Tickwatch (https://modrinth.com/mod/fiw-clock). Publishing refuses to
+# run while this is empty. Note: the slug "tickwatch" belongs to an unrelated project.
+MODRINTH_PROJECT="knjOyXW2"
+
 # Every jar Tickwatch releases, newest Minecraft first: "<module> <modrinth loader> <minecraft version>".
-# Sourced by collect-jars.sh and publish-modrinth.sh.
 TARGETS=(
   "fabric-1.21.11 fabric 1.21.11"
   "neoforge-1.21.11 neoforge 1.21.11"

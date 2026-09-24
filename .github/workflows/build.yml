@@ -67,13 +67,19 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Verify Modrinth secret
+      # Checked before anything is tagged, so a misconfigured release fails cleanly.
+      - name: Verify Modrinth configuration
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.release_tag.outputs.exists == 'false'
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
         run: |
           if [ -z "$MODRINTH_TOKEN" ]; then
             echo "MODRINTH_TOKEN is required to publish a new version" >&2
+            exit 1
+          fi
+          source .github/scripts/targets.sh
+          if [ -z "$MODRINTH_PROJECT" ]; then
+            echo "MODRINTH_PROJECT is not set in .github/scripts/targets.sh" >&2
             exit 1
           fi
 
