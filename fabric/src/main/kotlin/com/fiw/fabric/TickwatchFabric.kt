@@ -48,7 +48,7 @@ class TickwatchFabric : ModInitializer {
 			}
 			val attacker = source.entity
 			if (attacker is ServerPlayer) {
-				StatsManager.recordKill(attacker.uuid, attacker.gameProfile.name)
+				StatsManager.recordKill(attacker.uuid, attacker.gameProfile.name, entity.uuid, entity is ServerPlayer)
 			}
 		}
 

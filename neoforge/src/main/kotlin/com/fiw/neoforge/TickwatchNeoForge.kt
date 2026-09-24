@@ -64,7 +64,7 @@ object TickwatchNeoForge {
 		}
 		val attacker = event.source.entity
 		if (attacker is ServerPlayer) {
-			StatsManager.recordKill(attacker.uuid, attacker.gameProfile.name)
+			StatsManager.recordKill(attacker.uuid, attacker.gameProfile.name, victim.uuid, victim is ServerPlayer)
 		}
 	}
 }
