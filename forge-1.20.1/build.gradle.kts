@@ -25,8 +25,11 @@ val coreMain = project(":core").extensions.getByType(SourceSetContainer::class.j
 // Minecraft code shared with the other loader of this Minecraft version.
 kotlin.sourceSets.getByName("main").kotlin.srcDir(rootProject.file("common-$minecraftVersion/src/main/kotlin"))
 
+// Computed outside the block: inside legacyForge {}, `minecraftVersion` is the extension's own property.
+val forgeVersion = "$minecraftVersion-${target("forge_version")}"
+
 legacyForge {
-	version = "$minecraftVersion-${target("forge_version")}"
+	version = forgeVersion
 
 	mods {
 		register(forgeModId) {
