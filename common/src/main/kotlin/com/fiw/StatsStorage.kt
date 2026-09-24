@@ -67,11 +67,20 @@ class StatsStorage(private val file: Path) {
 			for ((key, element) in players.entrySet()) {
 				try {
 					val obj = element.asJsonObject
+					// Fields added after 1.0.0 default to 0, so older files load unchanged.
+					fun long(field: String): Long = obj.get(field)?.asLong ?: 0L
 					result[UUID.fromString(key)] = PlayerStats(
 						name = obj.get("name")?.asString ?: "unknown",
-						playTimeTicks = obj.get("playTimeTicks")?.asLong ?: 0L,
-						kills = obj.get("kills")?.asLong ?: 0L,
-						deaths = obj.get("deaths")?.asLong ?: 0L,
+						playTimeTicks = long("playTimeTicks"),
+						kills = long("kills"),
+						playerKills = long("playerKills"),
+						mobKills = long("mobKills"),
+						deaths = long("deaths"),
+						killStreak = long("killStreak"),
+						bestKillStreak = long("bestKillStreak"),
+						joins = long("joins"),
+						firstJoin = long("firstJoin"),
+						lastSeen = long("lastSeen"),
 					)
 				} catch (e: Exception) {
 					// Skip a single malformed entry rather than losing the whole file.
@@ -140,9 +149,16 @@ class StatsStorage(private val file: Path) {
 			val obj = JsonObject()
 			obj.addProperty("name", s.name)
 			obj.addProperty("playTimeTicks", s.playTimeTicks)
-			obj.addProperty("playTimeFormatted", formatTicks(s.playTimeTicks))
+			obj.addProperty("playTimeFormatted", Stat.formatTicks(s.playTimeTicks))
 			obj.addProperty("kills", s.kills)
+			obj.addProperty("playerKills", s.playerKills)
+			obj.addProperty("mobKills", s.mobKills)
 			obj.addProperty("deaths", s.deaths)
+			obj.addProperty("killStreak", s.killStreak)
+			obj.addProperty("bestKillStreak", s.bestKillStreak)
+			obj.addProperty("joins", s.joins)
+			obj.addProperty("firstJoin", s.firstJoin)
+			obj.addProperty("lastSeen", s.lastSeen)
 			players.add(id.toString(), obj)
 		}
 		root.add("players", players)
@@ -158,17 +174,6 @@ class StatsStorage(private val file: Path) {
 		} catch (e: InterruptedException) {
 			io.shutdownNow()
 			Thread.currentThread().interrupt()
-		}
-	}
-
-	private companion object {
-		/** Human-readable companion to playTimeTicks; informational only, ignored on load. */
-		fun formatTicks(ticks: Long): String {
-			val totalSeconds = ticks / 20
-			val hours = totalSeconds / 3600
-			val minutes = (totalSeconds % 3600) / 60
-			val seconds = totalSeconds % 60
-			return "%dh %02dm %02ds".format(hours, minutes, seconds)
 		}
 	}
 }
