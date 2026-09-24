@@ -10,7 +10,7 @@ displayName = "Tickwatch"
 authors = "fiw"
 logoFile = "assets/fiw-clock/icon.png"
 description = '''
-Lightweight, server-side tracker for player playtime, kills and deaths. Saves to a crash-safe JSON file per world.
+Lightweight, server-side tracker for player playtime, player/mob kills, deaths and kill streaks, with LuckPerms meta sync and a public API. Saves to a crash-safe JSON file per world.
 '''
 
 [[dependencies.fiw-clock]]
@@ -33,3 +33,10 @@ type = "required"
 versionRange = "[6,)"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.fiw-clock]]
+modId = "luckperms"
+type = "optional"
+versionRange = "[5,)"
+ordering = "NONE"
+side = "SERVER"
