@@ -22,5 +22,10 @@ include("core")
 // shared, version-specific Minecraft code in common-<version>/.
 include("fabric-1.21.11")
 include("neoforge-1.21.11")
+include("fabric-1.21.1")
+include("neoforge-1.21.1")
+include("fabric-1.20.1")
+// NeoForge has no 1.20.1 build, so the Forge family is covered by MinecraftForge there.
+include("forge-1.20.1")
 
 rootProject.name = "fiw-clock"
