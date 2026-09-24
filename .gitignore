@@ -41,3 +41,7 @@ Thumbs.db
 AGENTS.md
 AGENT.md
 CLAUDE.md
+
+# Release pipeline output
+/release/
+/RELEASE_NOTES.md

@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "fiw-clock",
+	"id": "${mod_id}",
 	"version": "${version}",
 	"name": "Tickwatch",
-	"description": "Lightweight, server-side tracker for player playtime, player/mob kills, deaths and kill streaks, with LuckPerms meta sync and a public API. Saves to a crash-safe JSON file per world.",
+	"description": "Lightweight, server-side tracker for player playtime, player/mob kills, deaths, kill streaks, sessions and AFK time, with LuckPerms meta sync, a /tickwatch command and a public API. Saves to a crash-safe JSON file per world.",
 	"authors": [
 		"fiw"
 	],
@@ -24,11 +24,11 @@
 		]
 	},
 	"depends": {
-		"fabricloader": ">=0.19.3",
-		"minecraft": "~1.21.11",
-		"java": ">=21",
+		"fabricloader": ">=${fabric_loader_min}",
+		"minecraft": "${minecraft_dependency}",
+		"java": ">=${java_version}",
 		"fabric-api": "*",
-		"fabric-language-kotlin": ">=1.13.0"
+		"fabric-language-kotlin": ">=1.13.4"
 	},
 	"suggests": {
 		"luckperms": "*"

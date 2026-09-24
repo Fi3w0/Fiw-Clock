@@ -5,12 +5,12 @@ plugins {
 }
 
 base {
-	archivesName.set("${providers.gradleProperty("archives_base_name").get()}-common")
+	archivesName.set("${providers.gradleProperty("archives_base_name").get()}-core")
 }
 
 dependencies {
 	// Both are shipped by Minecraft / the loader at runtime, so we only compile against them.
-	// Keeping them out of the jar is what lets `common` stay completely Minecraft-free.
+	// Keeping them out of the jar is what lets `core` stay completely Minecraft-free.
 	compileOnly("com.google.code.gson:gson:2.11.0")
 	compileOnly("org.slf4j:slf4j-api:2.0.16")
 
