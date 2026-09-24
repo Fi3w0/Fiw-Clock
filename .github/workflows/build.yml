@@ -42,10 +42,8 @@ jobs:
           path: '*/build/libs/*.jar'
           if-no-files-found: error
 
-      # Everything below only runs for a push to main with a mod_version that has no tag yet.
       - name: Read mod version
         id: version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           VERSION="$(awk -F= '$1 == "mod_version" { print $2 }' gradle.properties)"
           if [ -z "$VERSION" ]; then
@@ -55,6 +53,13 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
+      # Runs on every build so a renamed or missing jar is caught before a release needs it.
+      - name: Collect release jars
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: bash .github/scripts/collect-jars.sh
+
+      # Everything below only runs for a push to main with a mod_version that has no tag yet.
       - name: Check release tag
         id: release_tag
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -86,12 +91,6 @@ jobs:
             release|beta|alpha) ;;
             *) echo "RELEASE_TYPE in .github/scripts/targets.sh must be release, beta or alpha" >&2; exit 1 ;;
           esac
-
-      - name: Collect release jars
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.release_tag.outputs.exists == 'false'
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: bash .github/scripts/collect-jars.sh
 
       - name: Extract release notes
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.release_tag.outputs.exists == 'false'
