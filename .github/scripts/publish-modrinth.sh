@@ -9,7 +9,7 @@ CHANGELOG_FILE="${CHANGELOG_FILE:-RELEASE_NOTES.md}"
 DESCRIPTION_FILE="${DESCRIPTION_FILE:-MODRINTH.md}"
 MODRINTH_TOKEN="${MODRINTH_TOKEN:?MODRINTH_TOKEN is required}"
 
-# Provides MODRINTH_PROJECT (the Tickwatch project), RELEASE_TYPE and TARGETS.
+# Provides project metadata, the release channel and the target matrix.
 source "$(dirname "$0")/targets.sh"
 case "$RELEASE_TYPE" in
   release|beta|alpha) ;;
@@ -74,18 +74,14 @@ modrinth_version_exists() {
 }
 
 dependencies_for() {
-  if [ "$1" = "fabric" ]; then
-    jq -n --arg api "$FABRIC_API_ID" --arg kotlin "$FABRIC_KOTLIN_ID" --arg lp "$LUCKPERMS_ID" '[
-      {project_id: $api, dependency_type: "required"},
-      {project_id: $kotlin, dependency_type: "required"},
-      {project_id: $lp, dependency_type: "optional"}
+  jq -n --arg loader "$1" --arg runtime "$KOTLIN_RUNTIME" --arg optional_lp "$OPTIONAL_LUCKPERMS" \
+    --arg api "$FABRIC_API_ID" --arg kotlin "$FABRIC_KOTLIN_ID" \
+    --arg kff "$KOTLIN_FOR_FORGE_ID" --arg lp "$LUCKPERMS_ID" '[
+      if $loader == "fabric" then {project_id:$api, dependency_type:"required"} else empty end,
+      if $loader == "fabric" and $runtime != "none" then {project_id:$kotlin, dependency_type:"required"} else empty end,
+      if $loader != "fabric" and $runtime == "external" then {project_id:$kff, dependency_type:"required"} else empty end,
+      if $optional_lp == "true" then {project_id:$lp, dependency_type:"optional"} else empty end
     ]'
-  else
-    jq -n --arg kotlin "$KOTLIN_FOR_FORGE_ID" --arg lp "$LUCKPERMS_ID" '[
-      {project_id: $kotlin, dependency_type: "required"},
-      {project_id: $lp, dependency_type: "optional"}
-    ]'
-  fi
 }
 
 loader_label() {
@@ -113,7 +109,7 @@ for target in "${TARGETS[@]}"; do
   data_file="$tmp_dir/$module.json"
   jq -n \
     --rawfile changelog "$CHANGELOG_FILE" \
-    --arg name "Tickwatch $VERSION ($label)" \
+    --arg name "$DISPLAY_NAME $VERSION ($label)" \
     --arg version_number "$VERSION" \
     --arg project_id "$PROJECT_ID" \
     --arg game_version "$game_version" \
