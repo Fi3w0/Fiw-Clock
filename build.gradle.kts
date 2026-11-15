@@ -6,6 +6,7 @@ plugins {
 	// see the Kotlin plugin). Each module applies only what it needs.
 	id("org.jetbrains.kotlin.jvm") apply false
 	id("net.fabricmc.fabric-loom-remap") apply false
+	id("net.fabricmc.fabric-loom") apply false
 	id("net.neoforged.moddev") apply false
 	id("net.neoforged.moddev.legacyforge") apply false
 }
