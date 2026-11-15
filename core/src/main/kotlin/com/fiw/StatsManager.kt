@@ -3,6 +3,7 @@ package com.fiw
 import com.fiw.api.StatsListener
 import com.fiw.api.StatsSnapshot
 import com.fiw.luckperms.LuckPermsBridge
+import com.fiw.integration.AdminAfkBridge
 import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -48,6 +49,9 @@ object StatsManager {
 	/** Wall clock, swappable for tests. */
 	internal var clock: () -> Long = System::currentTimeMillis
 
+	/** Optional shared AFK authority; null means Tickwatch owns detection. */
+	internal var afkProvider: (UUID) -> Boolean? = AdminAfkBridge::state
+
 	val isRunning: Boolean
 		get() = storage != null
 
@@ -81,7 +85,15 @@ object StatsManager {
 	fun tickPlayer(uuid: UUID, name: String, yaw: Float, pitch: Float) {
 		val entry = entryFor(uuid, name)
 		val rotation = rotations.getOrPut(uuid) { Rotation() }
-		if (yaw != rotation.yaw || pitch != rotation.pitch) {
+		val sharedAfk = afkProvider(uuid)
+		if (sharedAfk != null) {
+			// The admin mod owns manual marks, activity, timeout and its disabled state.
+			// Keep the fallback timer fresh so losing the provider never reuses old idle time.
+			rotation.yaw = yaw
+			rotation.pitch = pitch
+			rotation.idleTicks = 0
+			if (entry.afk != sharedAfk) setAfk(uuid, entry, sharedAfk)
+		} else if (yaw != rotation.yaw || pitch != rotation.pitch) {
 			rotation.yaw = yaw
 			rotation.pitch = pitch
 			rotation.idleTicks = 0
@@ -203,7 +215,7 @@ object StatsManager {
 		if (!config.afkEnabled) {
 			for (uuid in online) {
 				val entry = stats[uuid] ?: continue
-				if (entry.afk) setAfk(uuid, entry, false)
+				if (entry.afk && afkProvider(uuid) != true) setAfk(uuid, entry, false)
 			}
 		}
 		Tickwatch.LOGGER.info("Config reloaded")

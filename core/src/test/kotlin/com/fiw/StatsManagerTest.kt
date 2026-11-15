@@ -32,6 +32,60 @@ class StatsManagerTest {
 	fun tearDown() {
 		StatsManager.stop()
 		StatsManager.clock = System::currentTimeMillis
+		StatsManager.afkProvider = { null }
+	}
+
+	@Test
+	fun `shared manual AFK overrides camera movement and local detection settings`() {
+		writeConfig("""{"afk":{"enabled":false}}""")
+		StatsManager.start(dir)
+		StatsManager.onPlayerJoin(alex, "Alex")
+		StatsManager.afkProvider = { true }
+		repeat(20) { StatsManager.tickPlayer(alex, "Alex", it.toFloat(), 0f) }
+		assertTrue(TickwatchApi.get(alex)!!.isAfk)
+		assertEquals(20, TickwatchApi.get(alex)!!.afkTicks)
+		assertEquals(0, TickwatchApi.get(alex)!!.playTimeTicks)
+		StatsManager.afkProvider = { false }
+		StatsManager.tickPlayer(alex, "Alex", 19f, 0f)
+		assertFalse(TickwatchApi.get(alex)!!.isAfk)
+		assertEquals(1, TickwatchApi.get(alex)!!.playTimeTicks)
+	}
+
+	@Test
+	fun `shared AFK state survives reloading disabled local detection`() {
+		writeConfig("""{"afk":{"enabled":false}}""")
+		StatsManager.start(dir)
+		StatsManager.onPlayerJoin(alex, "Alex")
+		StatsManager.afkProvider = { true }
+		StatsManager.tickPlayer(alex, "Alex", 0f, 0f)
+		assertTrue(TickwatchApi.get(alex)!!.isAfk)
+		assertTrue(StatsManager.reload())
+		assertTrue(TickwatchApi.get(alex)!!.isAfk)
+	}
+
+	@Test
+	fun `shared active state prevents a second local idle timeout`() {
+		writeConfig("""{"afk":{"enabled":true,"minutes":1}}""")
+		StatsManager.start(dir)
+		StatsManager.onPlayerJoin(alex, "Alex")
+		StatsManager.afkProvider = { false }
+		repeat(2400) { StatsManager.tickPlayer(alex, "Alex", 0f, 0f) }
+		assertFalse(TickwatchApi.get(alex)!!.isAfk)
+		assertEquals(2400, TickwatchApi.get(alex)!!.playTimeTicks)
+	}
+
+	@Test
+	fun `losing the shared authority restarts the local idle timer`() {
+		writeConfig("""{"afk":{"enabled":true,"minutes":1}}""")
+		StatsManager.start(dir)
+		StatsManager.onPlayerJoin(alex, "Alex")
+		StatsManager.afkProvider = { false }
+		repeat(2400) { StatsManager.tickPlayer(alex, "Alex", 0f, 0f) }
+		StatsManager.afkProvider = { null }
+		repeat(1199) { StatsManager.tickPlayer(alex, "Alex", 0f, 0f) }
+		assertFalse(TickwatchApi.get(alex)!!.isAfk)
+		StatsManager.tickPlayer(alex, "Alex", 0f, 0f)
+		assertTrue(TickwatchApi.get(alex)!!.isAfk)
 	}
 
 	@Test
