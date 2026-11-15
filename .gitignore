@@ -52,3 +52,9 @@ node_modules/
 __pycache__/
 
 *.py[cod]
+
+# Old local release output
+/dist/
+
+# Local tool settings
+.claude/
