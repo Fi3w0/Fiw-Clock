@@ -45,3 +45,10 @@ CLAUDE.md
 # Release pipeline output
 /release/
 /RELEASE_NOTES.md
+
+# Automated player-test dependencies
+node_modules/
+
+__pycache__/
+
+*.py[cod]

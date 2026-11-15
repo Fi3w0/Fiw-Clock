@@ -1,0 +1,9 @@
+{
+  "commands": [
+    "tickwatch reload",
+    "tickwatch top kills"
+  ],
+  "expected": [
+    "Tickwatch config reloaded."
+  ]
+}
