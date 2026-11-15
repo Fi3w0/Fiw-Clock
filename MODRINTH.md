@@ -12,7 +12,7 @@ on your TPS — and a `/tickwatch` command when you want to look.
 
 - 🪶 **Featherweight** — tracking is one integer per online player per tick. That's it.
 - 🖥️ **Server-side only** — your players join with a **vanilla client**. Install it on the server and forget it.
-- 🔀 **Fabric, NeoForge *and* Forge** — Minecraft 1.21.11, 1.21.1 and 1.20.1.
+- 🔀 **Fabric, NeoForge *and* Forge** — Minecraft 26.1.2, 1.21.11, 1.21.8, 1.21.1 and 1.20.1.
 - 💾 **Crash-safe by design** — atomic writes with a rotating backup. A sudden power loss or hard
   crash **cannot corrupt your stats**.
 - ⚡ **Never blocks the server** — all disk writes run on a dedicated background thread.
@@ -23,6 +23,9 @@ on your TPS — and a `/tickwatch` command when you want to look.
   `tickwatch_afk`, …) so any chat, tab or scoreboard mod that reads LuckPerms meta can display them,
   and every command has a permission node.
 - 🧩 **Public API** — other mods can read stats, leaderboards and listen for kills, deaths and AFK changes.
+
+With Admin Tools 1.4.0+ installed, Tickwatch 1.2.0+ shares its AFK state, including `/fiw afk`.
+Configure AFK in `config/fiw-admin/afk.json`; Tickwatch detects AFK itself when running alone.
 
 ## 📊 What it tracks
 
@@ -77,7 +80,9 @@ Perfect for leaderboards, web dashboards, Discord bots, or anything that can rea
 
 | Minecraft | Loaders | Java |
 |-----------|---------|------|
+| 26.1.2 | Fabric | 25+ |
 | 1.21.11 | Fabric, NeoForge | 21+ |
+| 1.21.8 | Fabric, NeoForge | 21+ |
 | 1.21.1 | Fabric, NeoForge | 21+ |
 | 1.20.1 | Fabric, Forge | 17+ |
 

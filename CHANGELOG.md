@@ -5,6 +5,21 @@ All notable changes to Tickwatch are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - Shared AFK and complete version support
+
+### Added
+- Fabric 26.1.2 (Java 25), plus Fabric and NeoForge 1.21.8, alongside all existing targets.
+- Automatic AFK integration with Admin Tools 1.4.0+: one shared state for manual AFK,
+  tags, auto-kick and time accounting. Admin Tools' `afk.json` owns AFK settings when both run.
+  Standalone Tickwatch keeps its camera-based detector.
+- Production-jar startup, connected-client gameplay, console-command and restart checks before CI publishes.
+
+### Fixed
+- Reloading Clock with local AFK disabled preserves Admin Tools' active AFK state.
+
+### Changed
+- Builds use Java 25, retaining Java 17/21 bytecode on older targets. All nine jars share one version.
+
 ## [1.1.0] - 2026-09-24
 
 ### Added

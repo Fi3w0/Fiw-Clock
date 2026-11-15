@@ -4,7 +4,7 @@
 **AFK time**, **sessions**, **player & mob kills**, **deaths**, **kill streaks** and **join history**,
 stores them in a plain JSON file per world, and (optionally) mirrors them into **LuckPerms meta** so
 other mods can display them. It runs on **Fabric**, **NeoForge** and **Forge** across Minecraft
-**1.21.11, 1.21.1 and 1.20.1** from a single codebase — **no Architectury or other wrapper
+**26.1.2, 1.21.11, 1.21.8, 1.21.1 and 1.20.1** from a single codebase — **no Architectury or other wrapper
 dependency required**.
 
 > Internally the project/mod id is `fiw-clock`; the public name is **Tickwatch**.
@@ -20,8 +20,8 @@ dependency required**.
 - **Public API** — other mods can read stats, leaderboards and change events (see [API](#api-for-other-mods)).
 - **Fully server-side** — install it on the server only. Vanilla clients can connect normally;
   no client install is required (it registers no client code, networking, or screens).
-- **Multi-loader, multi-version** — one build produces every jar: Fabric + NeoForge for 1.21.11 and
-  1.21.1, Fabric + Forge for 1.20.1.
+- **Multi-loader, multi-version** — one build produces every jar: Fabric for 26.1.2, Fabric + NeoForge for
+  1.21.11, 1.21.8 and 1.21.1, Fabric + Forge for 1.20.1.
 - **TPS-friendly** — tracking is a single integer increment per online player per tick, and all
   disk writes happen on a dedicated background thread. Nothing blocks the server thread.
 - **Crash-safe storage** — writes are atomic with a rotating backup, so a sudden power loss or
@@ -67,6 +67,14 @@ dependency required**.
 Killing yourself (e.g. with your own arrow) doesn't count as a kill. A player becomes AFK after
 `afk.minutes` (default 5) without turning their camera; being pushed around by water streams or
 pistons doesn't count as activity, so AFK pools can't farm playtime.
+
+When **Admin Tools 1.4.0+** is installed alongside **Tickwatch 1.2.0+**, Admin Tools owns
+AFK detection. `/fiw afk`, camera/activity detection, tab tags, broadcasts, auto-kick, and
+Tickwatch's AFK/playtime accounting use that same state. Configure it in
+`config/fiw-admin/afk.json`; Tickwatch's `afk.enabled`/`afk.minutes` are standalone fallbacks.
+Disabling Admin Tools' AFK module also disables AFK accounting while it is the authority.
+Neither integration requires the other mod to be installed. Older Admin Tools versions do
+not expose the shared API, so update both mods together to enable this integration.
 
 ## Commands
 
@@ -225,6 +233,9 @@ and a single malformed entry is skipped rather than discarding the whole file.
 
 | Minecraft | Loader | Java | Also needs |
 |-----------|--------|------|------------|
+| 26.1.2 | Fabric Loader 0.19.3+ | 25+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
+| 1.21.8 | Fabric Loader 0.19.3+ | 21+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
+| 1.21.8 | NeoForge 21.8.53+ | 21+ | Kotlin for Forge 5.10–5.x |
 | 1.21.11 | Fabric Loader 0.19.3+ | 21+ | [Fabric API](https://modrinth.com/mod/fabric-api), [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) 1.13.4+ |
 | 1.21.11 | NeoForge 21.11+ | 21+ | [Kotlin for Forge](https://modrinth.com/mod/kotlin-for-forge) 6.0+ |
 | 1.21.1 | Fabric Loader 0.16.9+ | 21+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
@@ -249,7 +260,8 @@ Optional on every target: [LuckPerms](https://luckperms.net) 5.4+ for meta sync 
 ./gradlew build
 ```
 
-Gradle runs on Java 21 (the 1.20.1 targets are compiled to Java 17 bytecode). Output jars land in
+Gradle runs on Java 25. Minecraft 26.1.2 uses Java 25, the 1.21.x targets use Java 21,
+and the 1.20.1 targets use Java 17 bytecode. Output jars land in
 `<module>/build/libs/fiw-clock-<module>-<version>.jar`, e.g.
 `fabric-1.21.11/build/libs/fiw-clock-fabric-1.21.11-<version>.jar`.
 
@@ -261,8 +273,8 @@ Gradle runs on Java 21 (the 1.20.1 targets are compiled to Java 17 bytecode). Ou
 core/                Loader-agnostic logic (tracking, AFK, storage, LuckPerms sync, commands' text, public API)
                      — Minecraft-free, unit-tested, bundled into every jar
 common-<mc>/         Minecraft code shared by both loaders of one version (event glue, /tickwatch tree)
-fabric-<mc>/         Fabric entry point + fabric.mod.json          (1.21.11, 1.21.1, 1.20.1)
-neoforge-<mc>/       NeoForge entry point + neoforge.mods.toml     (1.21.11, 1.21.1)
+fabric-<mc>/         Fabric entry point + fabric.mod.json          (26.1.2, 1.21.11, 1.21.8, 1.21.1, 1.20.1)
+neoforge-<mc>/       NeoForge entry point + neoforge.mods.toml     (1.21.11, 1.21.8, 1.21.1)
 forge-1.20.1/        Forge entry point + mods.toml
 ```
 
@@ -275,11 +287,36 @@ live in each module's `gradle.properties`; the mod version lives only in the roo
 ### Releases
 
 Pushing a new `mod_version` to `main` makes CI build every target, tag `v<version>`, create a
-GitHub release with the `CHANGELOG.md` section as notes, and publish all six jars to Modrinth.
+GitHub release with the `CHANGELOG.md` section as notes, and publish all nine jars to Modrinth.
 The release channel (`release`, `beta` or `alpha`) is `RELEASE_TYPE` in
 `.github/scripts/targets.sh`; anything but `release` becomes a Modrinth beta/alpha and a GitHub
 pre-release.
 
+### Verification
+
+`./gradlew smokeTest -PsmokeTarget=fabric-26.1.2` installs a matching dedicated server
+in disposable `build/smoke/` output, boots the production jar, exercises console commands,
+stops cleanly, and restarts the world. CI runs this for every release target before publishing.
+This checks startup, packaging, commands and restart; player gameplay needs separate testing.
+
 ## License
 
 Released under the [MIT License](LICENSE).
+
+### Automated verification
+
+Build on Java 25 with `./gradlew build`. Runtime checks use the game's required Java 17,
+21 or 25 and fresh disposable worlds under `build/smoke`; they never open an existing world.
+Node 22+ is required for `./gradlew playerTest -PsmokeTarget=<module>`.
+CI checks production startup, commands, connected-client behavior and restarts on all nine targets.
+
+To check Clock, Admin Tools, Graves and Warp together, first build each sibling repository,
+then run `./gradlew integrationTest -PsmokeTarget=<module>` here. For parallel runtime checks
+after building once, add `-PuseBuiltJars=true` so concurrent checks reuse completed jars. The runner locates their
+current-version production jars, uses the pinned client, and checks Graves' enchanted loot,
+armor/offhand, XP, partial collection, overflow, hazards and restarts, followed by the actual
+shared AFK bridge and home/warp behavior. Each failed assertion stops the run. Logs and saved-data
+snapshots remain under `build/smoke/<module>`.
+
+See [the compatibility audit](docs/COMPATIBILITY_AUDIT.md) for published versions and GitHub status,
+and [the verification research](docs/AUTOMATED_VERIFICATION_RESEARCH.md) for sources and test design.
