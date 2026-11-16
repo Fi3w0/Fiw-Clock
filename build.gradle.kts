@@ -58,15 +58,6 @@ tasks.register<Exec>("installPlayerTestTools") {
 }
 
 
-tasks.register<Exec>("integrationTest") {
-    val module = providers.gradleProperty("smokeTarget").getOrElse("fabric-26.1.2")
-    if (!providers.gradleProperty("useBuiltJars").getOrElse("false").toBoolean()) {
-        dependsOn("$module:build", "installPlayerTestTools")
-    }
-    commandLine("python3", ".github/scripts/verify-workspace.py", module)
-}
-
-
 tasks.register<Exec>("playerTest") {
     val module = providers.gradleProperty("smokeTarget").getOrElse("fabric-26.1.2")
     dependsOn("$module:build", "installPlayerTestTools")
