@@ -5,7 +5,7 @@
 # Modrinth project id or slug. Publishing refuses to run while this is empty.
 MODRINTH_PROJECT="knjOyXW2"
 # release, beta or alpha. Anything but release is also a GitHub pre-release.
-RELEASE_TYPE="beta"
+RELEASE_TYPE="release"
 # Name used in release and version titles.
 DISPLAY_NAME="Tickwatch"
 # gradle.properties key that holds the mod version (the single version source).
