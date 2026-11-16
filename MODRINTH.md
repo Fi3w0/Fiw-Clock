@@ -12,7 +12,7 @@ on your TPS — and a `/tickwatch` command when you want to look.
 
 - 🪶 **Featherweight** — tracking is one integer per online player per tick. That's it.
 - 🖥️ **Server-side only** — your players join with a **vanilla client**. Install it on the server and forget it.
-- 🔀 **Fabric, NeoForge *and* Forge** — Minecraft 26.1.2, 1.21.11, 1.21.8, 1.21.1 and 1.20.1.
+- 🔀 **Fabric, NeoForge *and* Forge** — Minecraft 26.3, 26.1.2, 1.21.11, 1.21.8, 1.21.1 and 1.20.1.
 - 💾 **Crash-safe by design** — atomic writes with a rotating backup. A sudden power loss or hard
   crash **cannot corrupt your stats**.
 - ⚡ **Never blocks the server** — all disk writes run on a dedicated background thread.
@@ -80,6 +80,7 @@ Perfect for leaderboards, web dashboards, Discord bots, or anything that can rea
 
 | Minecraft | Loaders | Java |
 |-----------|---------|------|
+| 26.3 | Fabric, NeoForge | 25+ |
 | 26.1.2 | Fabric, NeoForge | 25+ |
 | 1.21.11 | Fabric, NeoForge | 21+ |
 | 1.21.8 | Fabric, NeoForge | 21+ |
