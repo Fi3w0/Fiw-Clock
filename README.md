@@ -233,14 +233,14 @@ and a single malformed entry is skipped rather than discarding the whole file.
 
 | Minecraft | Loader | Java | Also needs |
 |-----------|--------|------|------------|
-| 26.3 | Fabric Loader 0.19.3+ | 25+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
-| 26.3 | NeoForge 26.3+ | 25+ | Kotlin for Forge 6.4+ |
+| 26.3 | Fabric Loader 0.19.3+ | 25+ | [Fabric API](https://modrinth.com/mod/fabric-api), [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) 1.13.4+ |
+| 26.3 | NeoForge 26.3+ | 25+ | [Kotlin for Forge](https://modrinth.com/mod/kotlin-for-forge) 6.4+ |
 | 26.1.2 | Fabric Loader 0.19.3+ | 25+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
 | 26.1.2 | NeoForge 26.1.2+ | 25+ | Kotlin for Forge 6.2+ |
+| 1.21.11 | Fabric Loader 0.19.3+ | 21+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
+| 1.21.11 | NeoForge 21.11+ | 21+ | Kotlin for Forge 6.0+ |
 | 1.21.8 | Fabric Loader 0.19.3+ | 21+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
-| 1.21.8 | NeoForge 21.8.53+ | 21+ | Kotlin for Forge 5.10–5.x |
-| 1.21.11 | Fabric Loader 0.19.3+ | 21+ | [Fabric API](https://modrinth.com/mod/fabric-api), [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) 1.13.4+ |
-| 1.21.11 | NeoForge 21.11+ | 21+ | [Kotlin for Forge](https://modrinth.com/mod/kotlin-for-forge) 6.0+ |
+| 1.21.8 | NeoForge 21.8+ | 21+ | Kotlin for Forge 5.10 or newer 5.x |
 | 1.21.1 | Fabric Loader 0.16.9+ | 21+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
 | 1.21.1 | NeoForge 21.1+ | 21+ | Kotlin for Forge 5.10+ |
 | 1.20.1 | Fabric Loader 0.16.10+ | 17+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
@@ -299,26 +299,9 @@ pre-release.
 
 `./gradlew smokeTest -PsmokeTarget=fabric-26.1.2` installs a matching dedicated server
 in disposable `build/smoke/` output, boots the production jar, exercises console commands,
-stops cleanly, and restarts the world. CI runs this for every release target before publishing.
-This checks startup, packaging, commands and restart; player gameplay needs separate testing.
+stops cleanly, and restarts the world. `./gradlew playerTest -PsmokeTarget=<module>` (Node 22+)
+adds a scripted client. CI runs these for every release target before publishing.
 
 ## License
 
 Released under the [MIT License](LICENSE).
-
-### Automated verification
-
-Build on Java 25 with `./gradlew build`. Runtime checks use the game's required Java 17,
-21 or 25 and fresh disposable worlds under `build/smoke`; they never open an existing world.
-Node 22+ is required for `./gradlew playerTest -PsmokeTarget=<module>`.
-CI checks production startup, commands, connected-client behavior and restarts on every target. Minecraft 26.3 gets the startup and console checks only until the test client supports it.
-
-To check Clock, Admin Tools, Graves and Warp together, first build each sibling repository,
-then run `./gradlew integrationTest -PsmokeTarget=<module>` here. For parallel runtime checks
-after building once, add `-PuseBuiltJars=true` so concurrent checks reuse completed jars. The runner locates their
-current-version production jars, uses the pinned client, and checks Graves' enchanted loot,
-armor/offhand, XP, partial collection, overflow, hazards and restarts, followed by the actual
-shared AFK bridge and home/warp behavior. Each failed assertion stops the run. Logs and saved-data
-snapshots remain under `build/smoke/<module>`.
-
-See [the verification research](docs/AUTOMATED_VERIFICATION_RESEARCH.md) for sources and test design.

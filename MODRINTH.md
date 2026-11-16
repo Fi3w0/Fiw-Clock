@@ -87,8 +87,8 @@ Perfect for leaderboards, web dashboards, Discord bots, or anything that can rea
 | 1.21.1 | Fabric, NeoForge | 21+ |
 | 1.20.1 | Fabric, Forge | 17+ |
 
-- **Fabric:** Fabric API + Fabric Language Kotlin
-- **NeoForge / Forge:** Kotlin for Forge
+- **Fabric:** Fabric API + Fabric Language Kotlin 1.13.4+
+- **NeoForge / Forge:** Kotlin for Forge (6.4+ on 26.3, 6.2+ on 26.1.2, 6.0+ on 1.21.11, 5.10 or a newer 5.x on 1.21.8, 5.10+ on 1.21.1, 4.12+ on 1.20.1)
 
 Optional: **LuckPerms** — enables meta sync (`/lp user <name> meta info` shows the stats).
 

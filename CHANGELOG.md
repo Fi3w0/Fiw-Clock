@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatic AFK integration with Admin Tools 1.4.0+: one shared state for manual AFK,
   tags, auto-kick and time accounting. Admin Tools' `afk.json` owns AFK settings when both run.
   Standalone Tickwatch keeps its camera-based detector.
-- Production-jar startup, connected-client gameplay, console-command and restart checks before CI publishes.
 
 ### Fixed
 - Reloading Clock with local AFK disabled preserves Admin Tools' active AFK state.
@@ -80,5 +79,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Off-thread asynchronous saving (every 5 minutes and on player logout) plus a final
   blocking save on server shutdown, so the server tick loop never blocks on disk I/O.
 
+[1.2.0]: https://github.com/Fi3w0/Fiw-Clock/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Fi3w0/Fiw-Clock/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Fi3w0/Fiw-Clock/releases/tag/v1.0.0
