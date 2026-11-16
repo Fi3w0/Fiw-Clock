@@ -80,7 +80,7 @@ Perfect for leaderboards, web dashboards, Discord bots, or anything that can rea
 
 | Minecraft | Loaders | Java |
 |-----------|---------|------|
-| 26.1.2 | Fabric | 25+ |
+| 26.1.2 | Fabric, NeoForge | 25+ |
 | 1.21.11 | Fabric, NeoForge | 21+ |
 | 1.21.8 | Fabric, NeoForge | 21+ |
 | 1.21.1 | Fabric, NeoForge | 21+ |

@@ -20,7 +20,7 @@ dependency required**.
 - **Public API** — other mods can read stats, leaderboards and change events (see [API](#api-for-other-mods)).
 - **Fully server-side** — install it on the server only. Vanilla clients can connect normally;
   no client install is required (it registers no client code, networking, or screens).
-- **Multi-loader, multi-version** — one build produces every jar: Fabric for 26.1.2, Fabric + NeoForge for
+- **Multi-loader, multi-version** — one build produces every jar: Fabric + NeoForge for 26.1.2,
   1.21.11, 1.21.8 and 1.21.1, Fabric + Forge for 1.20.1.
 - **TPS-friendly** — tracking is a single integer increment per online player per tick, and all
   disk writes happen on a dedicated background thread. Nothing blocks the server thread.
@@ -234,6 +234,7 @@ and a single malformed entry is skipped rather than discarding the whole file.
 | Minecraft | Loader | Java | Also needs |
 |-----------|--------|------|------------|
 | 26.1.2 | Fabric Loader 0.19.3+ | 25+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
+| 26.1.2 | NeoForge 26.1.2+ | 25+ | Kotlin for Forge 6.2+ |
 | 1.21.8 | Fabric Loader 0.19.3+ | 21+ | Fabric API, Fabric Language Kotlin 1.13.4+ |
 | 1.21.8 | NeoForge 21.8.53+ | 21+ | Kotlin for Forge 5.10–5.x |
 | 1.21.11 | Fabric Loader 0.19.3+ | 21+ | [Fabric API](https://modrinth.com/mod/fabric-api), [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) 1.13.4+ |
@@ -274,7 +275,7 @@ core/                Loader-agnostic logic (tracking, AFK, storage, LuckPerms sy
                      — Minecraft-free, unit-tested, bundled into every jar
 common-<mc>/         Minecraft code shared by both loaders of one version (event glue, /tickwatch tree)
 fabric-<mc>/         Fabric entry point + fabric.mod.json          (26.1.2, 1.21.11, 1.21.8, 1.21.1, 1.20.1)
-neoforge-<mc>/       NeoForge entry point + neoforge.mods.toml     (1.21.11, 1.21.8, 1.21.1)
+neoforge-<mc>/       NeoForge entry point + neoforge.mods.toml     (26.1.2, 1.21.11, 1.21.8, 1.21.1)
 forge-1.20.1/        Forge entry point + mods.toml
 ```
 
@@ -287,7 +288,7 @@ live in each module's `gradle.properties`; the mod version lives only in the roo
 ### Releases
 
 Pushing a new `mod_version` to `main` makes CI build every target, tag `v<version>`, create a
-GitHub release with the `CHANGELOG.md` section as notes, and publish all nine jars to Modrinth.
+GitHub release with the `CHANGELOG.md` section as notes, and publish all ten jars to Modrinth.
 The release channel (`release`, `beta` or `alpha`) is `RELEASE_TYPE` in
 `.github/scripts/targets.sh`; anything but `release` becomes a Modrinth beta/alpha and a GitHub
 pre-release.
@@ -308,7 +309,7 @@ Released under the [MIT License](LICENSE).
 Build on Java 25 with `./gradlew build`. Runtime checks use the game's required Java 17,
 21 or 25 and fresh disposable worlds under `build/smoke`; they never open an existing world.
 Node 22+ is required for `./gradlew playerTest -PsmokeTarget=<module>`.
-CI checks production startup, commands, connected-client behavior and restarts on all nine targets.
+CI checks production startup, commands, connected-client behavior and restarts on all ten targets.
 
 To check Clock, Admin Tools, Graves and Warp together, first build each sibling repository,
 then run `./gradlew integrationTest -PsmokeTarget=<module>` here. For parallel runtime checks
@@ -318,5 +319,4 @@ armor/offhand, XP, partial collection, overflow, hazards and restarts, followed 
 shared AFK bridge and home/warp behavior. Each failed assertion stops the run. Logs and saved-data
 snapshots remain under `build/smoke/<module>`.
 
-See [the compatibility audit](docs/COMPATIBILITY_AUDIT.md) for published versions and GitHub status,
-and [the verification research](docs/AUTOMATED_VERIFICATION_RESEARCH.md) for sources and test design.
+See [the verification research](docs/AUTOMATED_VERIFICATION_RESEARCH.md) for sources and test design.
